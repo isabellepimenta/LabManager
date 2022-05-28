@@ -1,6 +1,8 @@
 ﻿using Microsoft.Data.Sqlite;
 using LabManager.Database;
 using LabManager.Repositories;
+using LabManager.Models;
+
 
 var databaseConfig = new DatabaseConfig();
 var databaseSetup = new DatabaseSetup(databaseConfig);
@@ -25,20 +27,10 @@ if(modelName == "Computer")
         string ram = args[3];
         string processor = args[4];
 
-        var connection = new SqliteConnection("Data Source=database.db");
-        connection.Open();
-        var command = connection.CreateCommand();
-
-        command.CommandText = "INSERT INTO Computers VALUES($id, $ram, $processor)";
-        command.Parameters.AddWithValue("$id", id);
-        command.Parameters.AddWithValue("$ram", ram);
-        command.Parameters.AddWithValue("$processor", processor);
-
-        command.ExecuteNonQuery();
-        connection.Close();
+        var computer = new Computer(id, ram, processor);
+        computerRepository.Save(computer);
     }
 }
-  
 if(modelName == "Lab")
 {
     if(modelAction == "List")
@@ -46,13 +38,10 @@ if(modelName == "Lab")
         Console.WriteLine("Lab List");
         var connection = new SqliteConnection("Data Source=database.db");
         connection.Open();
-
         var command = connection.CreateCommand();
-
         command.CommandText = "SELECT * FROM Lab";
-
         var reader = command.ExecuteReader();
-
+        
         while(reader.Read())
         {
             Console.WriteLine("{0}, {1}, {2}, {3}", reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2), reader.GetString(3));
@@ -66,12 +55,9 @@ if(modelName == "Lab")
         var number = args[3];
         string name = args[4];
         string block = args[5];
-
         var connection = new SqliteConnection("Data Source=database.db");
         connection.Open();
-
         var command = connection.CreateCommand();
-
         command.CommandText = "INSERT INTO Lab VALUES($id, $number, $name, $block)";
         command.Parameters.AddWithValue("$id", id);
         command.Parameters.AddWithValue("$number", number);
@@ -79,7 +65,7 @@ if(modelName == "Lab")
         command.Parameters.AddWithValue("$block", block);
 
         command.ExecuteNonQuery();
-        
+
         connection.Close();
     }
 }
