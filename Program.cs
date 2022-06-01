@@ -49,6 +49,12 @@ if(modelName == "Computer")
     }
 
 
+if(modelAction == "Delete")
+    {
+        var id = Convert.ToInt32(args[2]);
+        computerRepository.Delete(id);
+    }
+
 
 
 }
