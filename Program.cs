@@ -5,7 +5,9 @@ using LabManager.Models;
 
 
 var databaseConfig = new DatabaseConfig();
+
 var databaseSetup = new DatabaseSetup(databaseConfig);
+
 var computerRepository = new ComputerRepository(databaseConfig);
 
 var modelName = args[0];
@@ -34,8 +36,15 @@ if(modelName == "Computer")
  if(modelAction == "Show")
     {
         var id = Convert.ToInt32(args[2]);
-        var computer = computerRepository.GetById(id);
-        Console.WriteLine($"{computer.Id}, {computer.Ram}, {computer.Processor}");
+        if(computerRepository.ExistsById(id))
+
+        {
+           var computer = computerRepository.GetById(id);
+           Console.WriteLine($"{computer.Id}, {computer.Ram}, {computer.Processor}");
+        } else {
+            Console.WriteLine($"O computador com id {id} não existe");
+        }
+ 
     }
 
     if(modelAction == "Update")
@@ -54,7 +63,6 @@ if(modelAction == "Delete")
         var id = Convert.ToInt32(args[2]);
         computerRepository.Delete(id);
     }
-
 
 
 }
@@ -76,6 +84,7 @@ if(modelName == "Lab")
         
         connection.Close();
     }
+    
     if(modelAction == "New")
     {
         var id = Convert.ToInt32(args[2]);
