@@ -1,6 +1,8 @@
 using LabManager.Database;
 using LabManager.Models;
 using Microsoft.Data.Sqlite;
+using Dapper;
+
 
 namespace LabManager.Repositories;
 
@@ -12,27 +14,13 @@ class ComputerRepository
         _databaseConfig = databaseConfig;
     }
 
-
-    public List<Computer> GetAll()
-    {
-        var computers = new List<Computer>();
-
-        var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+    public IEnumerable<Computer> GetAll()
+    {  
+        using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM Computers";
-        var reader = command.ExecuteReader();
-        
-        while(reader.Read())
-        {
-           var computer = readerToComputer(reader);
+        var computers = connection.Query<Computer>("SELECT * FROM Computers");
 
-            computers.Add(computer);
-        }
-        
-        connection.Close();
-        
         return computers;
     }
 
@@ -40,15 +28,11 @@ class ComputerRepository
     public Computer Save(Computer computer)
     {
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "INSERT INTO Computers VALUES($id, $ram, $processor)";
-        command.Parameters.AddWithValue("$id", computer.Id);
-        command.Parameters.AddWithValue("$ram", computer.Ram);
-        command.Parameters.AddWithValue("$processor", computer.Processor);
+        connection.Execute("INSERT INTO Computers VALUES(@Id, @Ram, @Processor)", computer);
 
-        command.ExecuteNonQuery();
         connection.Close();
 
         return computer;
@@ -107,7 +91,7 @@ class ComputerRepository
     }
 
     public bool ExistsById(int id)
-{
+    {
      var connection = new SqliteConnection(_databaseConfig.ConnectionString);
      connection.Open();
 
@@ -123,8 +107,7 @@ class ComputerRepository
        var result = Convert.ToBoolean(command.ExecuteScalar()); //Scalar volta em um valor da linha na tabela!
 
        return result;
-    
-}
+    }
 
 
     //Converter um Reader para um computador
@@ -132,7 +115,6 @@ class ComputerRepository
     {
        var computer = new Computer(reader.GetInt32(0), reader.GetString(1), reader.GetString(2));
     
-       return computer;
-     
+       return computer;  
     }
 }
