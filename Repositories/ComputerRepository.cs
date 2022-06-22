@@ -41,26 +41,19 @@ class ComputerRepository
 
     public Computer GetById(int id)
     {
-        var connection = new SqliteConnection(_databaseConfig.ConnectionString);
-        connection.Open();
-
-        var computer = connection.QuerySingle<Computer>("SELECT * FROM Computers WHERE Id = (@Id)", new { Id = id });
-
-        connection.Close();
+        using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+    
+        var computer = connection.QuerySingle<Computer>("SELECT * FROM Computers WHERE ID = (@Id)", new { Id = id });
 
         return computer;
-
-
     }
 
     public Computer Update(Computer computer)
     {
-        var connection = new SqliteConnection(_databaseConfig.ConnectionString);
-        connection.Open();
-
-        connection.Execute("Update Computers SET ram =  (@Ram), processor = (@Processor),  WHERE id = (@Id)", computer); 
-        connection.Close();
-
+        using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+        
+        connection.Execute("Update Computers SET ram = (@Ram), processor = (@Processor) WHERE id = (@Id)", computer); 
+        
         return computer;
     }
 
@@ -77,23 +70,13 @@ class ComputerRepository
 
     public bool ExistsById(int id)
     {
-     var connection = new SqliteConnection(_databaseConfig.ConnectionString);
-     connection.Open();
+        using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+        connection.Open();
 
-     var command = connection.CreateCommand();
-        command.CommandText = "SELECT count (id) FROM Computers WHERE id=$id";
-        command.Parameters.AddWithValue("$id", id);
-        
-        
-        //var reader = command.ExecuteReader();
-        //reader.Read();
-        //var result= reader.GetBoolean(0);
+        var result = connection.ExecuteScalar<bool>("SELECT count(id) FROM Computers WHERE ID = @Id;" , new { Id = id });
 
-       var result = Convert.ToBoolean(command.ExecuteScalar()); //Scalar volta em um valor da linha na tabela!
-
-       return result;
+        return result;
     }
-
 
     //Converter um Reader para um computador
     private Computer readerToComputer(SqliteDataReader reader) 

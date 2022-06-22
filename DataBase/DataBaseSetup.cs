@@ -18,15 +18,6 @@ class DatabaseSetup{
 
         connection.Open();
         var command = connection.CreateCommand();
-
-    
-          
-            
-    
-
-          
-    
-    
   
         command.CommandText = @"
             CREATE TABLE IF NOT EXISTS Computers(
