@@ -58,13 +58,7 @@ class ComputerRepository
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "UPDATE Computers SET ram = ($ram), processor = ($processor) WHERE ID = ($id)";
-        command.Parameters.AddWithValue("$id", computer.Id);
-        command.Parameters.AddWithValue("$ram", computer.Ram);
-        command.Parameters.AddWithValue("$processor", computer.Processor);
-
-        command.ExecuteNonQuery();
+        connection.Execute("Update Computers SET ram =  (@Ram), processor = (@Processor),  WHERE id = (@Id)", computer); 
         connection.Close();
 
         return computer;
@@ -76,10 +70,7 @@ class ComputerRepository
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM Computers WHERE ID = ($id)";
-        command.Parameters.AddWithValue("$id", id);
-        command.ExecuteNonQuery();
+        connection.Execute("DELETE FROM Computers WHERE ID = (@Id", new { Id = id});
 
         connection.Close();
     }

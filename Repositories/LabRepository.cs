@@ -45,16 +45,9 @@ class LabRepository
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "UPDATE Labs SET number = ($number), name = ($name), block = ($block) WHERE id = ($id)";
-        command.Parameters.AddWithValue("$id", lab.Id);
-        command.Parameters.AddWithValue("$number", lab.Number);
-        command.Parameters.AddWithValue("$name", lab.Name);
-        command.Parameters.AddWithValue("$block", lab.Block);
+        connection.Execute("Update Labs SET number = (@Number), name = (@Name), block = (@Block) WHERE id = (@Id)", lab); 
 
-        command.ExecuteNonQuery();
         connection.Close();
-
         return lab;
     }
 
@@ -71,15 +64,14 @@ class LabRepository
 
     public void Delete(int id)
     {
-        var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+       var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM Labs WHERE id = ($id)";
-        command.Parameters.AddWithValue("$id", id);
+        connection.Execute("DELETE FROM Labs WHERE id = (@Id)", new { Id = id});
         
-        command.ExecuteNonQuery();
         connection.Close();
+
+        
     }
 
     public bool ExistsById(int id)
